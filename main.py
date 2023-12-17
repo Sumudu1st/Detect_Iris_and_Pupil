@@ -37,18 +37,15 @@ while True:
         if circles is not None:
             circles = np.uint16(np.around(circles))
 
-            # Sort circles based on x-coordinate
-            circles = sorted(circles[0, :], key=lambda x: x[0])
-
             # Draw bounding boxes for irises and pupils
-            for i, (x, y, r) in enumerate(circles):
+            for i in circles[0, :]:
+                x, y, r = i
                 x = ex + x - r
                 y = ey + y - r
                 w = h = 2 * r
 
                 # Draw bounding box
-                color = (0, 255, 0) if i < 2 else (0, 0, 255)  # Green for irises, red for pupils
-                cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     # Display the frame
     cv2.imshow('Iris and Pupil Detection', frame)
