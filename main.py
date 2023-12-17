@@ -20,10 +20,6 @@ while True:
     # Detect eyes in the frame
     eyes = eye_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
 
-    # Initialize lists to store bounding boxes for irises and pupils
-    iris_boxes = []
-    pupil_boxes = []
-
     # Iterate over the detected eyes
     for (ex, ey, ew, eh) in eyes:
         # Get the region of interest (ROI) for eyes within the frame
@@ -41,26 +37,18 @@ while True:
         if circles is not None:
             circles = np.uint16(np.around(circles))
 
-            for i in circles[0, :]:
-                # Draw bounding box around the iris and pupil
-                x, y, r = i
+            # Sort circles based on x-coordinate
+            circles = sorted(circles[0, :], key=lambda x: x[0])
+
+            # Draw bounding boxes for irises and pupils
+            for i, (x, y, r) in enumerate(circles):
                 x = ex + x - r
                 y = ey + y - r
                 w = h = 2 * r
 
-                # Separate bounding boxes for irises and pupils based on the position
-                if y < ey + eh // 2:
-                    iris_boxes.append(((x, y), (x + w, y + h)))
-                else:
-                    pupil_boxes.append(((x, y), (x + w, y + h)))
-
-    # Draw bounding boxes for irises
-    for box in iris_boxes:
-        cv2.rectangle(frame, box[0], box[1], (0, 255, 0), 2)
-
-    # Draw bounding boxes for pupils
-    for box in pupil_boxes:
-        cv2.rectangle(frame, box[0], box[1], (0, 0, 255), 2)
+                # Draw bounding box
+                color = (0, 255, 0) if i < 2 else (0, 0, 255)  # Green for irises, red for pupils
+                cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
 
     # Display the frame
     cv2.imshow('Iris and Pupil Detection', frame)
